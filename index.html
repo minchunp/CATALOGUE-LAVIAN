@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="vi">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Catalogue Lavian</title>
+      <style>
+         * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+         }
+
+         body {
+            overflow: hidden;
+            background-color: #fef6fb;
+            color: #555;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+         }
+
+         /* Onboarding Screen */
+         #onboarding {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #f7d7ee, #fef6fb);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out;
+         }
+
+         .logo-container {
+            text-align: center;
+            transform: scale(0.8);
+            opacity: 0;
+            animation: logoAnimation 2.5s forwards;
+         }
+
+         @keyframes logoAnimation {
+            0% {
+               transform: scale(0.8);
+               opacity: 0;
+            }
+            50% {
+               transform: scale(1.1);
+               opacity: 1;
+            }
+            100% {
+               transform: scale(1);
+               opacity: 1;
+            }
+         }
+
+         .logo-container h1 {
+            font-size: 3rem;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #d0529f, #f7d7ee);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+         }
+
+         .logo-container .img-logo {
+            width: 450px;
+            height: auto;
+            margin-bottom: 15px;
+         }
+
+         .logo-container p {
+            color: #ad6797;
+            font-size: 1rem;
+            letter-spacing: 1px;
+         }
+
+         .spinner {
+            width: 40px;
+            height: 40px;
+            margin: 20px auto;
+            border: 3px solid rgba(208, 82, 159, 0.1);
+            border-radius: 50%;
+            border-top: 3px solid #d0529f;
+            animation: spin 1s linear infinite;
+         }
+
+         @keyframes spin {
+            0% {
+               transform: rotate(0deg);
+            }
+            100% {
+               transform: rotate(360deg);
+            }
+         }
+
+         @keyframes pulse {
+            0% {
+               transform: scale(1);
+            }
+            50% {
+               transform: scale(1.05);
+            }
+            100% {
+               transform: scale(1);
+            }
+         }
+
+         /* Main Content */
+         .gallery-container {
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+            display: none;
+         }
+
+         /* Side Menu - Redesigned */
+         .side-menu {
+            position: fixed;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            height: auto;
+            max-height: 80vh;
+            width: 55px;
+            background-color: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 25px 0;
+            border-radius: 0 15px 15px 0;
+            box-shadow: 5px 0 20px rgba(215, 131, 189, 0.15);
+            overflow: hidden;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+         }
+
+         .side-menu:hover {
+            width: 210px;
+         }
+
+         .menu-toggle {
+            display: none;
+         }
+
+         .menu-item {
+            width: 100%;
+            padding: 15px;
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            border-radius: 0 10px 10px 0;
+            position: relative;
+            overflow: hidden;
+         }
+
+         .menu-item:hover,
+         .menu-item.active {
+            background-color: rgba(247, 215, 238, 0.6);
+         }
+
+         .menu-item:before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background-color: transparent;
+            transition: all 0.3s ease;
+         }
+
+         .menu-item.active:before {
+            background-color: #d0529f;
+         }
+
+         .menu-item .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #ad6797;
+            margin: 0 15px 0 10px;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+         }
+
+         .menu-item.active .dot {
+            background-color: #d0529f;
+            transform: scale(1.5);
+            box-shadow: 0 0 10px rgba(208, 82, 159, 0.5);
+         }
+
+         .menu-item .title {
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateX(10px);
+            transition-delay: 0.1s;
+         }
+
+         .side-menu:hover .menu-item .title {
+            opacity: 1;
+            transform: translateX(0);
+         }
+
+         .menu-item.active .title {
+            color: #d0529f;
+            font-weight: 600;
+         }
+
+         .images-container {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            scroll-behavior: smooth;
+         }
+
+         .section {
+            height: 100%;
+            width: 100%;
+            flex-shrink: 0;
+            scroll-snap-align: start;
+            position: relative;
+            overflow: hidden;
+         }
+
+         .section-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+         }
+
+         .section-title {
+            position: absolute;
+            bottom: 40px;
+            left: 80px;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(90deg, rgba(208, 82, 159, 0.85), rgba(247, 215, 238, 0.4));
+            padding: 10px 25px;
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            max-width: 80%;
+         }
+
+         .section.active .section-title {
+            opacity: 1;
+            transform: translateY(0);
+         }
+
+         /* Mobile Optimization */
+         @media (max-width: 768px) {
+            .side-menu {
+               width: 40px;
+               padding: 15px 0;
+            }
+
+            .side-menu:hover {
+               width: 190px;
+            }
+
+            .menu-item {
+               padding: 12px 10px;
+               margin: 5px 0;
+            }
+
+            .menu-item .dot {
+               margin: 0 10px 0 5px;
+            }
+
+            .section-title {
+               font-size: 1.5rem;
+               left: 60px;
+               bottom: 30px;
+               padding: 8px 20px;
+            }
+
+            .logo-container h1 {
+               font-size: 2rem;
+            }
+
+            .logo-container .img-logo {
+               width: 280px;
+            }
+         }
+
+         /* Custom scroll */
+         .images-container::-webkit-scrollbar {
+            display: none;
+         }
+
+         .images-container {
+            -ms-overflow-style: none; /* IE and Edge */
+            scrollbar-width: none; /* Firefox */
+         }
+      </style>
+   </head>
+   <body>
+      <!-- Onboarding Screen -->
+      <div id="onboarding">
+         <div class="logo-container">
+            <img class="img-logo" src="/public/images/logo-vàng.png" alt="" />
+            <div class="spinner"></div>
+         </div>
+      </div>
+
+      <!-- Main Gallery -->
+      <div class="gallery-container">
+         <div class="side-menu">
+            <div class="menu-item active" data-section="section1">
+               <div class="dot"></div>
+               <div class="title">Lavian Beauty Center</div>
+            </div>
+            <div class="menu-item" data-section="section2">
+               <div class="dot"></div>
+               <div class="title">Lipe Sulam Alis</div>
+            </div>
+            <div class="menu-item" data-section="section3">
+               <div class="dot"></div>
+               <div class="title">Sulam Alis</div>
+            </div>
+            <div class="menu-item" data-section="section4">
+               <div class="dot"></div>
+               <div class="title">Alis Treatment</div>
+            </div>
+            <div class="menu-item" data-section="section5">
+               <div class="dot"></div>
+               <div class="title">Sulam Bibir</div>
+            </div>
+            <div class="menu-item" data-section="section6">
+               <div class="dot"></div>
+               <div class="title">Bibir Treatment</div>
+            </div>
+            <div class="menu-item" data-section="section7">
+               <div class="dot"></div>
+               <div class="title">Sulam Eyeliner</div>
+            </div>
+         </div>
+
+         <div class="images-container">
+            <div id="section1" class="section active">
+               <img src="/public/images/banner_catalogue.png" class="section-image" alt="Lavian Beauty Center" />
+               <h2 class="section-title">Lavian Beauty Center</h2>
+            </div>
+            <div id="section2" class="section">
+               <img src="/public/images/lipeSulamAlis_catalogue.png" class="section-image" alt="Lipe Sulam Alis" />
+               <h2 class="section-title">Lipe Sulam Alis</h2>
+            </div>
+            <div id="section3" class="section">
+               <img src="/public/images/sulamAlis_catalogue.png" class="section-image" alt="Sulam Alis" />
+               <h2 class="section-title">Sulam Alis</h2>
+            </div>
+            <div id="section4" class="section">
+               <img src="/public/images/alisTreatment_catalogue.png" class="section-image" alt="Alis Treatment" />
+               <h2 class="section-title">Alis Treatment</h2>
+            </div>
+            <div id="section5" class="section">
+               <img src="/public/images/sulamBibir_catalogue.png" class="section-image" alt="Sulam Bibir" />
+               <h2 class="section-title">Sulam Bibir</h2>
+            </div>
+            <div id="section6" class="section">
+               <img src="/public/images/bibirTreatment_catalogue.png" class="section-image" alt="Bibir Treatment" />
+               <h2 class="section-title">Bibir Treatment</h2>
+            </div>
+            <div id="section7" class="section">
+               <img src="/public/images/sulamEyeliner_catalogue.png" class="section-image" alt="Sulam Eyeliner" />
+               <h2 class="section-title">Sulam Eyeliner</h2>
+            </div>
+         </div>
+      </div>
+
+      <script>
+         document.addEventListener("DOMContentLoaded", function () {
+            // Onboarding timeout
+            setTimeout(function () {
+               const onboarding = document.getElementById("onboarding");
+               onboarding.style.opacity = "0";
+
+               setTimeout(function () {
+                  onboarding.style.display = "none";
+                  document.querySelector(".gallery-container").style.display = "block";
+               }, 500);
+            }, 3000);
+
+            const menuItems = document.querySelectorAll(".menu-item");
+            const sections = document.querySelectorAll(".section");
+            const imagesContainer = document.querySelector(".images-container");
+
+            // Handle menu click
+            menuItems.forEach((item) => {
+               item.addEventListener("click", function () {
+                  const targetSectionId = this.getAttribute("data-section");
+                  const targetSection = document.getElementById(targetSectionId);
+
+                  targetSection.scrollIntoView({ behavior: "smooth" });
+               });
+            });
+
+            // Update active section on scroll
+            let debounceTimer;
+            imagesContainer.addEventListener("scroll", function () {
+               clearTimeout(debounceTimer);
+               debounceTimer = setTimeout(function () {
+                  const scrollPosition = imagesContainer.scrollTop;
+                  const windowHeight = window.innerHeight;
+
+                  sections.forEach((section, index) => {
+                     const sectionTop = section.offsetTop;
+                     const sectionBottom = sectionTop + section.offsetHeight;
+
+                     if (scrollPosition >= sectionTop - windowHeight / 2 && scrollPosition < sectionBottom - windowHeight / 2) {
+                        // Remove active class from all menu items and sections
+                        menuItems.forEach((item) => item.classList.remove("active"));
+                        sections.forEach((sec) => sec.classList.remove("active"));
+
+                        // Add active class to current section and menu item
+                        section.classList.add("active");
+                        menuItems[index].classList.add("active");
+
+                        // Add a subtle animation to the active menu item
+                        menuItems[index].style.animation = "pulse 0.8s ease-in-out";
+                        setTimeout(() => {
+                           menuItems[index].style.animation = "";
+                        }, 800);
+                     }
+                  });
+               }, 50);
+            });
+
+            // Intersection Observer for smooth animations
+            const observer = new IntersectionObserver(
+               (entries) => {
+                  entries.forEach((entry) => {
+                     if (entry.isIntersecting) {
+                        entry.target.classList.add("active");
+                     } else {
+                        entry.target.classList.remove("active");
+                     }
+                  });
+               },
+               {
+                  threshold: 0.7,
+                  rootMargin: "0px",
+               }
+            );
+
+            sections.forEach((section) => {
+               observer.observe(section);
+               section.classList.remove("active"); // Reset initial state
+            });
+
+            // First section active by default
+            sections[0].classList.add("active");
+
+            // Toggle menu on mobile
+            const sideMenu = document.querySelector(".side-menu");
+
+            // Touch event support for mobile
+            sideMenu.addEventListener("touchstart", function () {
+               sideMenu.classList.add("expanded");
+               sideMenu.style.width = window.innerWidth <= 768 ? "150px" : "180px";
+            });
+
+            document.addEventListener("touchstart", function (e) {
+               if (!sideMenu.contains(e.target) && sideMenu.classList.contains("expanded")) {
+                  sideMenu.classList.remove("expanded");
+                  sideMenu.style.width = window.innerWidth <= 768 ? "40px" : "55px";
+               }
+            });
+         });
+      </script>
+   </body>
+</html>
